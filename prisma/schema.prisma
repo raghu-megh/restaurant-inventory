@@ -1,0 +1,79 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name          String         @default("NO_NAME")
+  createdAt     DateTime       @default(now()) @db.Timestamp(6)
+  email         String         @unique(map: "user_email_idx")
+  emailVerified DateTime?      @db.Timestamp(6)
+  password      String?
+  role          Role           @default(USER)
+  Item          Item[]
+  Transactions  Transactions[]
+}
+
+model Item {
+  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  category     Category
+  description  String?
+  price        Decimal?       @default(0) @db.Decimal(12, 2)
+  createdAt    DateTime       @default(now()) @db.Timestamp(6)
+  unit         Unit           @default(LBS)
+  Transactions Transactions[]
+  User         User?          @relation(fields: [userId], references: [id])
+  userId       String?        @db.Uuid
+}
+
+model Transactions {
+  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  item        Item            @relation(fields: [itemId], references: [id])
+  user        User            @relation(fields: [userId], references: [id])
+  userId      String          @db.Uuid
+  description String?
+  type        TransactionType @default(USAGE)
+  quantity    Int
+  unit        Unit
+
+  itemId String @db.Uuid
+}
+
+enum TransactionType {
+  PURCHASE
+  USAGE
+  WASTAGE
+}
+
+enum Unit {
+  LBS
+  KGS
+  LTR
+  GAL
+  PIECES
+}
+
+enum Category {
+  DAIRY
+  MEAT
+  VEGETABLES
+  BEVERAGES
+  OTHER
+}
+
+enum Role {
+  USER
+  ADMIN
+}
