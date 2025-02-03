@@ -14,39 +14,39 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  name          String         @default("NO_NAME")
-  createdAt     DateTime       @default(now()) @db.Timestamp(6)
-  email         String         @unique(map: "user_email_idx")
-  emailVerified DateTime?      @db.Timestamp(6)
-  password      String?
-  role          Role           @default(USER)
-  Item          Item[]
-  Transactions  Transactions[]
+  id             String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name           String        @default("NO_NAME")
+  createdAt      DateTime      @default(now()) @db.Timestamp(6)
+  email          String        @unique(map: "user_email_idx")
+  emailVerified  DateTime?     @db.Timestamp(6)
+  password       String?
+  role           Role          @default(USER)
+  inventoryItems Inventory[]
+  transactions   Transaction[]
 }
 
-model Item {
-  id           String         @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+model Inventory {
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name         String
   category     Category
   description  String?
-  price        Decimal?       @default(0) @db.Decimal(12, 2)
-  createdAt    DateTime       @default(now()) @db.Timestamp(6)
-  unit         Unit           @default(LBS)
-  Transactions Transactions[]
-  User         User?          @relation(fields: [userId], references: [id])
-  userId       String?        @db.Uuid
+  price        Decimal?      @default(0) @db.Decimal(12, 2)
+  createdAt    DateTime      @default(now()) @db.Timestamp(6)
+  unit         Unit          @default(LBS)
+  user         User          @relation(fields: [userId], references: [id])
+  userId       String        @db.Uuid
+  transactions Transaction[]
 }
 
-model Transactions {
-  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  item        Item            @relation(fields: [itemId], references: [id])
-  user        User            @relation(fields: [userId], references: [id])
-  userId      String          @db.Uuid
-  description String?
-  type        TransactionType @default(USAGE)
-  quantity    Int
-  unit        Unit
+model Transaction {
+  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  inventoryItem Inventory       @relation(fields: [itemId], references: [id])
+  user          User            @relation(fields: [userId], references: [id])
+  userId        String          @db.Uuid
+  description   String?
+  type          TransactionType @default(USAGE)
+  quantity      Int
+  unit          Unit
 
   itemId String @db.Uuid
 }
@@ -60,8 +60,8 @@ enum TransactionType {
 enum Unit {
   LBS
   KGS
-  LTR
-  GAL
+  LTRS
+  GALS
   PIECES
 }
 

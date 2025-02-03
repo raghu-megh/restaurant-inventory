@@ -2,7 +2,7 @@
 CREATE TYPE "TransactionType" AS ENUM ('PURCHASE', 'USAGE', 'WASTAGE');
 
 -- CreateEnum
-CREATE TYPE "Unit" AS ENUM ('LBS', 'KGS', 'LTR', 'GAL', 'PIECES');
+CREATE TYPE "Unit" AS ENUM ('LBS', 'KGS', 'LTRS', 'GALS', 'PIECES');
 
 -- CreateEnum
 CREATE TYPE "Category" AS ENUM ('DAIRY', 'MEAT', 'VEGETABLES', 'BEVERAGES', 'OTHER');
@@ -24,7 +24,7 @@ CREATE TABLE "User" (
 );
 
 -- CreateTable
-CREATE TABLE "Item" (
+CREATE TABLE "Inventory" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "name" TEXT NOT NULL,
     "category" "Category" NOT NULL,
@@ -32,13 +32,13 @@ CREATE TABLE "Item" (
     "price" DECIMAL(12,2) DEFAULT 0,
     "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "unit" "Unit" NOT NULL DEFAULT 'LBS',
-    "userId" UUID,
+    "userId" UUID NOT NULL,
 
-    CONSTRAINT "Item_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Inventory_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateTable
-CREATE TABLE "Transactions" (
+CREATE TABLE "Transaction" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "userId" UUID NOT NULL,
     "description" TEXT,
@@ -47,17 +47,17 @@ CREATE TABLE "Transactions" (
     "unit" "Unit" NOT NULL,
     "itemId" UUID NOT NULL,
 
-    CONSTRAINT "Transactions_pkey" PRIMARY KEY ("id")
+    CONSTRAINT "Transaction_pkey" PRIMARY KEY ("id")
 );
 
 -- CreateIndex
 CREATE UNIQUE INDEX "user_email_idx" ON "User"("email");
 
 -- AddForeignKey
-ALTER TABLE "Item" ADD CONSTRAINT "Item_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Inventory" ADD CONSTRAINT "Inventory_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Transactions" ADD CONSTRAINT "Transactions_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES "Item"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_itemId_fkey" FOREIGN KEY ("itemId") REFERENCES "Inventory"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Transactions" ADD CONSTRAINT "Transactions_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Transaction" ADD CONSTRAINT "Transaction_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
