@@ -1,6 +1,9 @@
 {
   "name": "restaurant-inventory",
   "version": "0.1.0",
+  "prisma": {
+    "seed": "tsx prisma/seed.ts"
+  },
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -10,6 +13,7 @@
     "postinstall": "prisma generate"
   },
   "dependencies": {
+    "@radix-ui/react-slot": "^1.1.1",
     "axios": "^1.7.9",
     "next": "15.1.6",
     "react": "^19.0.0",
@@ -26,7 +30,9 @@
     "eslint-config-next": "15.1.6",
     "postcss": "^8.5.1",
     "prisma": "^6.3.0",
+    "shadcn-ui": "^0.9.4",
     "tailwindcss": "^3.4.17",
+    "ts-node": "^10.9.2",
     "tsx": "^4.19.2",
     "typescript": "^5.7.3"
   }
