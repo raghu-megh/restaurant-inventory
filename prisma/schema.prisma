@@ -16,10 +16,23 @@ model User {
   password      String?
   role          Role      @default(USER)
 
-  inventoryItems Inventory[]
-  transactions   Transaction[]
+  restaurants  Restaurant[]
+  transactions Transaction[]
 
+  @@index([email]) // Speeds up user lookup by email
   @@index([createdAt]) // Optimized user listing queries by creation date
+}
+
+model Restaurant {
+  id           String        @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name         String
+  address      String
+  user         User?         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String?       @db.Uuid
+  inventory    Inventory[]
+  transactions Transaction[]
+
+  @@index([userId]) // Optimized restaurant lookup by user
 }
 
 model Inventory {
@@ -31,29 +44,30 @@ model Inventory {
   createdAt   DateTime @default(now()) @db.Timestamp(6)
   unit        Unit     @default(LBS)
 
-  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId String @db.Uuid
-
   transactions Transaction[]
+  restaurant   Restaurant?   @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId String?       @db.Uuid
 
-  @@index([userId]) // Speeds up queries filtering inventory by user
+  @@index([restaurantId]) // Optimized inventory lookup by restaurant
 }
 
 model Transaction {
-  id            String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  inventoryItem Inventory       @relation(fields: [itemId], references: [id], onDelete: Cascade)
-  user          User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  userId        String          @db.Uuid
-  description   String?
-  type          TransactionType @default(USAGE)
-  quantity      Int
-  unit          Unit
-  createdAt     DateTime        @default(now()) @db.Timestamp(6)
+  id          String          @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  inventory   Inventory       @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String          @db.Uuid
+  description String?
+  type        TransactionType @default(USAGE)
+  quantity    Int
+  unit        Unit
+  createdAt   DateTime        @default(now()) @db.Timestamp(6)
 
-  itemId String @db.Uuid
+  itemId       String      @db.Uuid
+  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id], onDelete: Cascade)
+  restaurantId String?     @db.Uuid
 
-  @@index([itemId]) // Speeds up queries filtering by item
-  @@index([userId, createdAt]) // Optimized filtering transactions by user and date
+  @@index([itemId]) // Speeds up queries filtering by inventory item
+  @@index([restaurantId, createdAt]) // Optimized filtering transactions by restaurant and date
   @@index([createdAt]) // Optimized sorting by date
 }
 
