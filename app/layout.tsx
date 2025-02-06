@@ -4,6 +4,7 @@ import "./globals.css";
 import AuthProvider from "./api/auth/Provider";
 import NavBar from "./NavBar";
 import SignIn from "./components/sign-in";
+import { SignOut } from "./components/sign-out";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -31,9 +32,7 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <AuthProvider>
-          <NavBar>
-            <SignIn />
-          </NavBar>
+          <NavBar signInButton={<SignIn />} signOutButton={<SignOut />} />
         </AuthProvider>
 
         <main className="p-5">{children}</main>

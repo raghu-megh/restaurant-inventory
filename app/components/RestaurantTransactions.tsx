@@ -29,6 +29,7 @@ export default function TransactionsList({
 
         const data = await res.json();
         setTransactions(data);
+        console.log("data length is ", data.length);
       } catch (error) {
         console.error(error);
       } finally {

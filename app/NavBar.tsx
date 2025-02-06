@@ -4,7 +4,13 @@ import Link from "next/link";
 import React, { ReactNode } from "react";
 import { useSession } from "next-auth/react";
 
-const NavBar = ({ children }: { children: ReactNode }) => {
+const NavBar = ({
+  signInButton,
+  signOutButton,
+}: {
+  signInButton: ReactNode;
+  signOutButton: ReactNode;
+}) => {
   const { status, data: session } = useSession();
 
   if (status === "loading") return null;
@@ -14,11 +20,18 @@ const NavBar = ({ children }: { children: ReactNode }) => {
       <Link href={"/"} className="mr-5">
         Restaurant Inventory System
       </Link>
-      <Link href={"/users"} className="mr-5">
-        Users
-      </Link>
-      {status === "authenticated" && <div>{session?.user!.name}</div>}
-      {status === "unauthenticated" && <div>{children}</div>}
+
+      {status === "authenticated" && (
+          <Link href={"/dashboard"} className="mr-5">
+            Transactions
+          </Link>
+        ) && (
+          <div className="flex">
+            {session?.user!.name}
+            <span className="ml-3">{signOutButton}</span>
+          </div>
+        )}
+      {status === "unauthenticated" && <div>{signInButton}</div>}
     </div>
   );
 };

@@ -1,7 +1,7 @@
 import RestaurantTransactions from "@/app/components/RestaurantTransactions";
 
 export default function DashboardPage() {
-  const restaurantId = "353e0707-bbfc-4213-aaaf-e5e34b1f7781"; // Replace with actual ID
+  const restaurantId = "31ea92da-5ef3-4c5d-9272-219d8dbb7f69"; // Replace with actual ID
 
   return (
     <div className="max-w-3xl mx-auto py-10">

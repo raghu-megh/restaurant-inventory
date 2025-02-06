@@ -10,6 +10,6 @@ export async function signInWithCredentials(prevState: unknown, formData: FormDa
 const user = signInFormSchema.safeParse({
     email: formData.get('email'),
     password: formData.get('password')});
-    }
+    } 
 
 }
