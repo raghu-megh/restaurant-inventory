@@ -9,64 +9,92 @@ async function hashPassword(password: string): Promise<string> {
 }
 
 async function main() {
-  console.log("🌱 Seeding database...");
+  console.log("🧹 Clearing existing data...");
+
+  // Delete data in reverse order to prevent foreign key conflicts
+  await prisma.transaction.deleteMany({});
+  await prisma.inventory.deleteMany({});
+  await prisma.restaurant.deleteMany({});
+  await prisma.user.deleteMany({});
+
+  console.log("✅ Database cleared successfully!");
+
+  console.log("🌱 Seeding new data...");
 
   // Hash passwords
   const adminPassword = await hashPassword("Admin@123");
   const userPassword = await hashPassword("User@123");
 
   // Create Users
-  const admin = await prisma.user.upsert({
-    where: { email: "admin@example.com" },
-    update: {},
-    create: {
+  const admin = await prisma.user.create({
+    data: {
       name: "Admin User",
       email: "admin@example.com",
-      password: adminPassword, // Hashed password
+      password: adminPassword,
       role: Role.ADMIN,
     },
   });
 
-  const user = await prisma.user.upsert({
-    where: { email: "user@example.com" },
-    update: {},
-    create: {
+  const user = await prisma.user.create({
+    data: {
       name: "Regular User",
       email: "user@example.com",
-      password: userPassword, // Hashed password
+      password: userPassword,
       role: Role.USER,
     },
   });
 
-  // Create a Restaurant
-  const restaurant = await prisma.restaurant.create({
-    data: {
-      name: "Tasty Bites",
-      address: "123 Food Street, NY",
-      userId: admin.id,
-    },
+  // Create Restaurants
+  const restaurant1 = await prisma.restaurant.create({
+    data: { name: "Tasty Bites", address: "123 Food Street, NY", userId: admin.id },
+  });
+
+  const restaurant2 = await prisma.restaurant.create({
+    data: { name: "Gourmet Delights", address: "456 Main Avenue, LA", userId: user.id },
   });
 
   // Create Inventory Items
-  const milk = await prisma.inventory.create({
+  let milk = await prisma.inventory.create({
     data: {
       name: "Whole Milk",
       category: Category.DAIRY,
       description: "Fresh organic whole milk",
       price: 3.99,
       unit: Unit.LTRS,
-      restaurantId: restaurant.id,
+      restaurantId: restaurant1.id,
     },
   });
 
-  const beef = await prisma.inventory.create({
+  let beef = await prisma.inventory.create({
     data: {
       name: "Beef Patty",
       category: Category.MEAT,
       description: "Frozen Angus beef patties",
       price: 8.49,
       unit: Unit.LBS,
-      restaurantId: restaurant.id,
+      restaurantId: restaurant1.id,
+    },
+  });
+
+  milk = await prisma.inventory.create({
+    data: {
+      name: "Whole Milk",
+      category: Category.DAIRY,
+      description: "Fresh organic whole milk",
+      price: 3.99,
+      unit: Unit.LTRS,
+      restaurantId: restaurant2.id,
+    },
+  });
+
+  beef = await prisma.inventory.create({
+    data: {
+      name: "Beef Patty",
+      category: Category.MEAT,
+      description: "Frozen Angus beef patties",
+      price: 8.49,
+      unit: Unit.LBS,
+      restaurantId: restaurant2.id,
     },
   });
 
@@ -80,7 +108,7 @@ async function main() {
         quantity: 10,
         unit: Unit.LTRS,
         description: "Bought fresh milk",
-        restaurantId: restaurant.id,
+        restaurantId: restaurant1.id,
       },
       {
         userId: admin.id,
@@ -89,7 +117,30 @@ async function main() {
         quantity: 5,
         unit: Unit.LBS,
         description: "Used for burgers",
-        restaurantId: restaurant.id,
+        restaurantId: restaurant1.id,
+      },
+    ],
+  });
+
+  await prisma.transaction.createMany({
+    data: [
+      {
+        userId: admin.id,
+        itemId: milk.id,
+        type: TransactionType.PURCHASE,
+        quantity: 15,
+        unit: Unit.LTRS,
+        description: "Bought fresh milk",
+        restaurantId: restaurant2.id,
+      },
+      {
+        userId: admin.id,
+        itemId: beef.id,
+        type: TransactionType.USAGE,
+        quantity: 8,
+        unit: Unit.LBS,
+        description: "Used for burgers",
+        restaurantId: restaurant2.id,
       },
     ],
   });

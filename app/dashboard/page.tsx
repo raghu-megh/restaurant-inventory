@@ -1,12 +1,12 @@
-import InventoryTransactions from "@/components/InventoryTransactions";
+import RestaurantTransactions from "@/app/components/RestaurantTransactions";
 
-export default function Dashboard() {
-  const userId = "d0c67337-071a-4bc6-a547-8bfeb8187d0e"; // Replace with real authentication logic
+export default function DashboardPage() {
+  const restaurantId = "353e0707-bbfc-4213-aaaf-e5e34b1f7781"; // Replace with actual ID
 
   return (
-    <main className="flex flex-col items-center p-6">
-      <h1 className="text-3xl font-bold mb-4">User Dashboard</h1>
-      <InventoryTransactions userId={userId} />
-    </main>
+    <div className="max-w-3xl mx-auto py-10">
+      <h1 className="text-2xl font-bold mb-6">Restaurant Dashboard</h1>
+      <RestaurantTransactions restaurantId={restaurantId} />
+    </div>
   );
 }
